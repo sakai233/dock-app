@@ -159,13 +159,6 @@ function createSettingsWindow() {
   settingsWindow.on('closed', () => {
     settingsWindow = null;
   });
-
-  settingsWindow.on('blur', () => {
-    // 失去焦点时关闭
-    if (settingsWindow) {
-      settingsWindow.close();
-    }
-  });
 }
 
 function createAddIconWindow() {
@@ -202,12 +195,6 @@ function createAddIconWindow() {
 
   addIconWindow.on('closed', () => {
     addIconWindow = null;
-  });
-
-  addIconWindow.on('blur', () => {
-    if (addIconWindow) {
-      addIconWindow.close();
-    }
   });
 }
 

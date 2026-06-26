@@ -319,6 +319,35 @@
       text-align: right;
     }
 
+    .setting-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 20px 0;
+    }
+
+    .quit-btn {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 60, 60, 0.15);
+      border: 1px solid rgba(255, 60, 60, 0.3);
+      border-radius: 10px;
+      color: #ff5555;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .quit-btn:hover {
+      background: rgba(255, 60, 60, 0.25);
+      border-color: rgba(255, 60, 60, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .quit-btn:active {
+      transform: translateY(0);
+    }
+
     /* 添加图标对话框 */
     .add-dialog {
       position: fixed;
@@ -665,6 +694,8 @@
           <input type="range" id="iconSize" min="24" max="80" value="${settings.iconSize}">
           <div class="setting-value">${settings.iconSize}px</div>
         </div>
+        <div class="setting-divider"></div>
+        <button class="quit-btn" id="quitBtn">🚪 退出软件</button>
       `;
 
       // 绑定设置面板事件
@@ -693,6 +724,15 @@
         document.querySelector('#iconSize + .setting-value').textContent = settings.iconSize + 'px';
         applySettings();
         saveSettings();
+      });
+
+      // 退出按钮
+      document.getElementById('quitBtn').addEventListener('click', () => {
+        if (confirm('确定要退出 Dock App 吗？')) {
+          if (window.electronAPI) {
+            window.electronAPI.quitApp();
+          }
+        }
       });
     }
 

@@ -10,5 +10,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   resizeWindow: (height) => ipcRenderer.send('resize-window', height),
   selectExeFile: () => ipcRenderer.invoke('select-exe-file'),
   launchPath: (path) => ipcRenderer.invoke('launch-path', path),
+  quitApp: () => ipcRenderer.invoke('quit-app'),
   onInitData: (callback) => ipcRenderer.on('init-data', (event, data) => callback(data))
 });

@@ -201,3 +201,9 @@ ipcMain.handle('launch-path', (event, iconPath) => {
     return false;
   }
 });
+
+// 退出应用
+ipcMain.handle('quit-app', () => {
+  app.quit();
+  return true;
+});

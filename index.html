@@ -34,7 +34,7 @@
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      padding-top: 8px;
+      padding-top: 4px;
       pointer-events: none;
     }
 
@@ -378,17 +378,37 @@
       clearTimeout(hideTimeout);
       isCollapsed = false;
       dockBar.classList.remove('collapsed');
+      if (window.electronAPI) {
+        window.electronAPI.expandDock();
+      }
     }
 
     function collapseDock() {
       hideTimeout = setTimeout(() => {
         isCollapsed = true;
         dockBar.classList.add('collapsed');
+        if (window.electronAPI) {
+          window.electronAPI.collapseDock();
+        }
       }, 300);
     }
 
-    dockBar.addEventListener('mouseenter', expandDock);
-    dockBar.addEventListener('mouseleave', collapseDock);
+    // 监听主进程的展开/收起事件
+    if (window.electronAPI) {
+      window.electronAPI.onDockExpand(() => {
+        clearTimeout(hideTimeout);
+        isCollapsed = false;
+        dockBar.classList.remove('collapsed');
+      });
+      window.electronAPI.onDockCollapse(() => {
+        isCollapsed = true;
+        dockBar.classList.add('collapsed');
+      });
+    } else {
+      // 浏览器环境下回退到原来的鼠标事件
+      dockBar.addEventListener('mouseenter', expandDock);
+      dockBar.addEventListener('mouseleave', collapseDock);
+    }
 
     settingsBtn.addEventListener('click', (e) => {
       e.stopPropagation();

@@ -11,7 +11,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   closeAddIcon: () => ipcRenderer.invoke('close-add-icon'),
   selectExeFile: () => ipcRenderer.invoke('select-exe-file'),
   launchPath: (path) => ipcRenderer.invoke('launch-path', path),
+  expandDock: () => ipcRenderer.invoke('expand-dock'),
+  collapseDock: () => ipcRenderer.invoke('collapse-dock'),
   quitApp: () => ipcRenderer.invoke('quit-app'),
   onDataUpdated: (callback) => ipcRenderer.on('data-updated', (event, data) => callback(data)),
-  onInitData: (callback) => ipcRenderer.on('init-data', (event, data) => callback(data))
+  onInitData: (callback) => ipcRenderer.on('init-data', (event, data) => callback(data)),
+  onDockExpand: (callback) => ipcRenderer.on('dock-expand', () => callback()),
+  onDockCollapse: (callback) => ipcRenderer.on('dock-collapse', () => callback())
 });

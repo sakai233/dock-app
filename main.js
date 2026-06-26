@@ -6,6 +6,9 @@ const { shell } = require('electron');
 let mainWindow;
 let settingsWindow = null;
 let addIconWindow = null;
+let isDockExpanded = false;
+let mouseCheckInterval = null;
+let collapseTimeout = null;
 
 const userDataPath = app.getPath('userData');
 const settingsPath = path.join(userDataPath, 'settings.json');
@@ -75,7 +78,7 @@ function createMainWindow() {
 
   mainWindow = new BrowserWindow({
     width: 800,
-    height: 120,
+    height: 30,
     x: Math.floor((screenWidth - 800) / 2),
     y: 0,
     frame: false,
@@ -98,12 +101,19 @@ function createMainWindow() {
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+    if (mouseCheckInterval) {
+      clearInterval(mouseCheckInterval);
+      mouseCheckInterval = null;
+    }
   });
 
   // 窗口移动时同步子窗口位置
   mainWindow.on('move', () => {
     positionChildWindows();
   });
+
+  // 启动鼠标位置监控
+  mouseCheckInterval = setInterval(checkMousePosition, 50);
 }
 
 function positionChildWindows() {
@@ -121,6 +131,68 @@ function positionChildWindows() {
     const awBounds = addIconWindow.getBounds();
     const x = mainBounds.x + Math.floor((mainBounds.width - awBounds.width) / 2);
     addIconWindow.setPosition(x, y);
+  }
+}
+
+function expandDockWindow() {
+  if (!mainWindow || isDockExpanded) return;
+  clearTimeout(collapseTimeout);
+  isDockExpanded = true;
+  const bounds = mainWindow.getBounds();
+  mainWindow.setBounds({ ...bounds, height: 120 }, true);
+  if (mainWindow.webContents) {
+    mainWindow.webContents.send('dock-expand');
+  }
+}
+
+function collapseDockWindow() {
+  if (!mainWindow || !isDockExpanded) return;
+  isDockExpanded = false;
+  const bounds = mainWindow.getBounds();
+  mainWindow.setBounds({ ...bounds, height: 30 }, true);
+  if (mainWindow.webContents) {
+    mainWindow.webContents.send('dock-collapse');
+  }
+}
+
+function checkMousePosition() {
+  if (!mainWindow) return;
+  
+  // 如果有子窗口打开，保持展开状态
+  if (settingsWindow || addIconWindow) {
+    if (!isDockExpanded) {
+      expandDockWindow();
+    }
+    return;
+  }
+  
+  const cursorPoint = screen.getCursorScreenPoint();
+  const windowBounds = mainWindow.getBounds();
+  
+  const expandThreshold = 20;
+  const mouseInExpandArea = 
+    cursorPoint.x >= windowBounds.x - expandThreshold &&
+    cursorPoint.x <= windowBounds.x + windowBounds.width + expandThreshold &&
+    cursorPoint.y >= windowBounds.y - expandThreshold &&
+    cursorPoint.y <= windowBounds.y + windowBounds.height + expandThreshold;
+  
+  if (mouseInExpandArea) {
+    expandDockWindow();
+  } else if (isDockExpanded) {
+    const mouseInWindow = 
+      cursorPoint.x >= windowBounds.x &&
+      cursorPoint.x <= windowBounds.x + windowBounds.width &&
+      cursorPoint.y >= windowBounds.y &&
+      cursorPoint.y <= windowBounds.y + windowBounds.height;
+    
+    if (!mouseInWindow) {
+      clearTimeout(collapseTimeout);
+      collapseTimeout = setTimeout(() => {
+        collapseDockWindow();
+      }, 300);
+    } else {
+      clearTimeout(collapseTimeout);
+    }
   }
 }
 
@@ -333,6 +405,18 @@ ipcMain.handle('launch-path', (event, iconPath) => {
     console.error('Error launching path:', e);
     return false;
   }
+});
+
+// 展开Dock窗口
+ipcMain.handle('expand-dock', () => {
+  expandDockWindow();
+  return true;
+});
+
+// 收起Dock窗口
+ipcMain.handle('collapse-dock', () => {
+  collapseDockWindow();
+  return true;
 });
 
 // 退出应用

@@ -32,8 +32,8 @@
       height: 100%;
       position: relative;
       display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      flex-direction: column;
+      align-items: center;
       padding-top: 8px;
     }
 
@@ -60,18 +60,6 @@
       gap: 8px;
       perspective: 800px;
       transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      animation: dockEnter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    @keyframes dockEnter {
-      from {
-        opacity: 0;
-        transform: translateY(-20px) scale(0.9);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
     }
 
     .dock-bar.collapsed {
@@ -109,25 +97,7 @@
       transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       position: relative;
       flex-shrink: 0;
-      animation: iconEnter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
     }
-
-    @keyframes iconEnter {
-      from {
-        opacity: 0;
-        transform: translateY(-20px) scale(0.5);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .icon-item:nth-child(1) { animation-delay: 0.05s; }
-    .icon-item:nth-child(2) { animation-delay: 0.1s; }
-    .icon-item:nth-child(3) { animation-delay: 0.15s; }
-    .icon-item:nth-child(4) { animation-delay: 0.2s; }
-    .icon-item:nth-child(5) { animation-delay: 0.25s; }
 
     .icon-item:hover {
       transform: translateY(-12px) scale(1.15);
@@ -142,6 +112,13 @@
       line-height: 1;
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
       transition: transform 0.25s ease;
+    }
+
+    .icon-img {
+      width: var(--icon-size);
+      height: var(--icon-size);
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
     }
 
     .icon-label {
@@ -220,9 +197,17 @@
       transform: scale(0.95);
     }
 
-    /* 设置面板 - 固定在设置按钮下方 */
+    /* 扩展区域 - 放设置面板和添加对话框 */
+    .expand-area {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      margin-top: 12px;
+    }
+
+    /* 设置面板 */
     .settings-panel {
-      position: fixed;
       width: 320px;
       background: rgba(30, 30, 30, 0.97);
       backdrop-filter: blur(24px);
@@ -231,7 +216,7 @@
       border-radius: 16px;
       padding: 20px;
       color: white;
-      z-index: 1000;
+      z-index: 100;
       display: none;
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
       animation: panelSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -240,7 +225,7 @@
     @keyframes panelSlideIn {
       from {
         opacity: 0;
-        transform: translateY(-10px) scale(0.95);
+        transform: translateY(-15px) scale(0.95);
       }
       to {
         opacity: 1;
@@ -350,10 +335,6 @@
 
     /* 添加图标对话框 */
     .add-dialog {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
       width: 400px;
       background: rgba(30, 30, 30, 0.97);
       backdrop-filter: blur(24px);
@@ -362,7 +343,7 @@
       border-radius: 16px;
       padding: 24px;
       color: white;
-      z-index: 2000;
+      z-index: 200;
       display: none;
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
       animation: dialogPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -371,11 +352,11 @@
     @keyframes dialogPop {
       from {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.85);
+        transform: translateY(-15px) scale(0.9);
       }
       to {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
+        transform: translateY(0) scale(1);
       }
     }
 
@@ -455,11 +436,48 @@
       border-color: #4a9eff;
     }
 
+    .icon-preview {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .icon-preview-img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+    }
+
+    .icon-preview-emoji {
+      font-size: 64px;
+      line-height: 1;
+    }
+
+    .icon-preview-info {
+      flex: 1;
+    }
+
+    .icon-preview-name {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .icon-preview-path {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      word-break: break-all;
+    }
+
     .emoji-picker {
       display: grid;
       grid-template-columns: repeat(8, 1fr);
       gap: 4px;
-      max-height: 140px;
+      max-height: 120px;
       overflow-y: auto;
       padding: 10px;
       background: rgba(255, 255, 255, 0.05);
@@ -484,6 +502,18 @@
     .emoji-option.selected {
       background: rgba(74, 158, 255, 0.3);
       box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.5);
+    }
+
+    .emoji-toggle {
+      font-size: 12px;
+      color: #4a9eff;
+      cursor: pointer;
+      margin-top: 8px;
+      text-align: right;
+    }
+
+    .emoji-toggle:hover {
+      text-decoration: underline;
     }
 
     .dialog-buttons {
@@ -527,27 +557,6 @@
       transform: translateY(0);
     }
 
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.4);
-      z-index: 1500;
-      display: none;
-      animation: fadeIn 0.2s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    .overlay.show {
-      display: block;
-    }
-
     ::-webkit-scrollbar {
       width: 6px;
     }
@@ -578,34 +587,49 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- 设置面板 -->
-  <div class="settings-panel" id="settingsPanel"></div>
+    <div class="expand-area">
+      <!-- 设置面板 -->
+      <div class="settings-panel" id="settingsPanel"></div>
 
-  <div class="overlay" id="overlay"></div>
+      <!-- 添加图标对话框 -->
+      <div class="add-dialog" id="addDialog">
+        <h3>添加桌面图标</h3>
 
-  <!-- 添加图标对话框 -->
-  <div class="add-dialog" id="addDialog">
-    <h3>添加桌面图标</h3>
-    <div class="form-group">
-      <label>图标名称</label>
-      <input type="text" id="iconName" placeholder="输入图标名称，如：微信">
-    </div>
-    <div class="form-group">
-      <label>选择图标</label>
-      <div class="emoji-picker" id="emojiPicker"></div>
-    </div>
-    <div class="form-group">
-      <label>应用程序路径</label>
-      <div class="file-input-group">
-        <input type="text" id="iconPath" placeholder="点击浏览选择或手动输入路径">
-        <button class="file-browse-btn" id="browseBtn">📁 浏览</button>
+        <div class="form-group">
+          <label>选择应用程序</label>
+          <div class="file-input-group">
+            <input type="text" id="iconPath" placeholder="点击浏览选择应用程序">
+            <button class="file-browse-btn" id="browseBtn">📁 浏览</button>
+          </div>
+        </div>
+
+        <div id="iconPreviewSection" style="display: none;">
+          <div class="icon-preview">
+            <div id="iconPreviewContent"></div>
+            <div class="icon-preview-info">
+              <div class="icon-preview-name" id="previewName"></div>
+              <div class="icon-preview-path" id="previewPath"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>图标名称</label>
+          <input type="text" id="iconName" placeholder="输入图标名称">
+        </div>
+
+        <div class="form-group">
+          <label>自定义图标 (可选)</label>
+          <div class="emoji-toggle" id="emojiToggle">展开表情选择器 ▼</div>
+          <div class="emoji-picker" id="emojiPicker" style="display: none;"></div>
+        </div>
+
+        <div class="dialog-buttons">
+          <button class="btn-cancel" id="cancelAdd">取消</button>
+          <button class="btn-confirm" id="confirmAdd">添加</button>
+        </div>
       </div>
-    </div>
-    <div class="dialog-buttons">
-      <button class="btn-cancel" id="cancelAdd">取消</button>
-      <button class="btn-confirm" id="confirmAdd">添加</button>
     </div>
   </div>
 
@@ -616,37 +640,41 @@
     const settingsBtn = document.getElementById('settingsBtn');
     const settingsPanel = document.getElementById('settingsPanel');
     const addDialog = document.getElementById('addDialog');
-    const overlay = document.getElementById('overlay');
     const cancelAddBtn = document.getElementById('cancelAdd');
     const confirmAddBtn = document.getElementById('confirmAdd');
     const browseBtn = document.getElementById('browseBtn');
     const iconNameInput = document.getElementById('iconName');
     const iconPathInput = document.getElementById('iconPath');
     const emojiPicker = document.getElementById('emojiPicker');
+    const emojiToggle = document.getElementById('emojiToggle');
+    const iconPreviewSection = document.getElementById('iconPreviewSection');
+    const iconPreviewContent = document.getElementById('iconPreviewContent');
+    const previewName = document.getElementById('previewName');
+    const previewPath = document.getElementById('previewPath');
 
     let settings = {};
     let icons = [];
-    let selectedEmoji = '📄';
+    let selectedEmoji = null;
+    let selectedFileIcon = null;
+    let selectedFilePath = null;
     let centerIndex = 0;
     let isCollapsed = true;
     let hideTimeout = null;
+    let emojiPickerOpen = false;
 
     const emojiList = [
       '💻', '📱', '🖥️', '📁', '📂', '⚙️', '🔧', '🛠️',
       '🌐', '📧', '💬', '📞', '📹', '🎮', '🎵', '🎬',
       '📷', '📸', '🖼️', '📚', '📖', '📝', '📋', '📌',
-      '🗂️', '💾', '💿', '📀', '🔋', '🔌', '💡', '🔦',
-      '☎️', '📟', '📠', '🖨️', '📠', '⌨️', '🖱️', '💻',
-      '🎯', '🏆', '🥇', '🎖️', '⭐', '🌟', '✨', '💫',
-      '🔥', '💧', '❄️', '🌈', '🌙', '☀️', '🌤️', '⛅',
-      '🚗', '✈️', '🚀', '🛸', '🚁', '⛵', '🚢', '🚂'
+      '🗂️', '💾', '💿', '📀', '🎯', '🏆', '⭐', '🌟',
+      '🔥', '💧', '❄️', '🌈', '🌙', '☀️', '🚀', '🛸'
     ];
 
     function initEmojiPicker() {
       emojiPicker.innerHTML = '';
       emojiList.forEach(emoji => {
         const div = document.createElement('div');
-        div.className = 'emoji-option' + (emoji === selectedEmoji ? ' selected' : '');
+        div.className = 'emoji-option' + (selectedEmoji === emoji ? ' selected' : '');
         div.textContent = emoji;
         div.onclick = () => selectEmoji(emoji);
         emojiPicker.appendChild(div);
@@ -658,6 +686,22 @@
       document.querySelectorAll('.emoji-option').forEach(el => {
         el.classList.toggle('selected', el.textContent === emoji);
       });
+      // 更新预览
+      updateIconPreview();
+    }
+
+    function toggleEmojiPicker() {
+      emojiPickerOpen = !emojiPickerOpen;
+      emojiPicker.style.display = emojiPickerOpen ? 'grid' : 'none';
+      emojiToggle.textContent = emojiPickerOpen ? '收起表情选择器 ▲' : '展开表情选择器 ▼';
+      if (emojiPickerOpen) {
+        // 重新计算窗口高度
+        requestAnimationFrame(() => {
+          resizeToFit();
+        });
+      } else {
+        resizeToFit();
+      }
     }
 
     function applySettings() {
@@ -698,7 +742,7 @@
         <button class="quit-btn" id="quitBtn">🚪 退出软件</button>
       `;
 
-      // 绑定设置面板事件
+      // 绑定事件
       document.getElementById('themeColor').addEventListener('input', (e) => {
         settings.themeColor = e.target.value;
         applySettings();
@@ -726,7 +770,6 @@
         saveSettings();
       });
 
-      // 退出按钮
       document.getElementById('quitBtn').addEventListener('click', () => {
         if (confirm('确定要退出 Dock App 吗？')) {
           if (window.electronAPI) {
@@ -753,7 +796,7 @@
       } else {
         settings = { themeColor: '#ffffff', bgOpacity: 6, blurAmount: 20, iconSize: 48 };
         icons = [
-          { id: 1, name: '此电脑', icon: '💻', path: 'explorer.exe', type: 'app' },
+          { id: 1, name: '此电脑', icon: '💻', path: 'explorer.exe', type: 'system' },
           { id: 2, name: '回收站', icon: '🗑️', path: 'shell:RecycleBinFolder', type: 'system' },
           { id: 3, name: '设置', icon: '⚙️', path: 'ms-settings:', type: 'system' }
         ];
@@ -782,11 +825,18 @@
         iconItem.style.zIndex = zIndex;
         iconItem.draggable = true;
         iconItem.dataset.id = icon.id;
-        iconItem.style.animationDelay = `${idx * 0.05}s`;
+
+        // 判断是图片图标还是emoji图标
+        let iconHtml = '';
+        if (icon.icon && icon.icon.startsWith('data:image')) {
+          iconHtml = `<img class="icon-img" src="${icon.icon}" alt="${icon.name}">`;
+        } else {
+          iconHtml = `<span class="icon-emoji">${icon.icon || '📄'}</span>`;
+        }
 
         iconItem.innerHTML = `
           <span class="remove-btn" data-id="${icon.id}">×</span>
-          <span class="icon-emoji">${icon.icon}</span>
+          ${iconHtml}
           <span class="icon-label">${icon.name}</span>
         `;
 
@@ -869,22 +919,76 @@
 
     function collapseDock() {
       hideTimeout = setTimeout(() => {
-        isCollapsed = true;
-        dockBar.classList.add('collapsed');
+        if (!settingsPanel.classList.contains('show') && !addDialog.classList.contains('show')) {
+          isCollapsed = true;
+          dockBar.classList.add('collapsed');
+        }
       }, 300);
     }
 
-    // 显示设置面板（定位在设置按钮下方）
     function showSettingsPanel() {
-      const btnRect = settingsBtn.getBoundingClientRect();
-      settingsPanel.style.left = btnRect.left + 'px';
-      settingsPanel.style.top = (btnRect.bottom + 10) + 'px';
+      addDialog.classList.remove('show');
       settingsPanel.classList.add('show');
+      expandDock();
+      resizeToFit();
     }
 
-    // 隐藏设置面板
     function hideSettingsPanel() {
       settingsPanel.classList.remove('show');
+      resizeToFit();
+    }
+
+    function showAddDialog() {
+      settingsPanel.classList.remove('show');
+      addDialog.classList.add('show');
+      expandDock();
+      // 重置表单
+      iconNameInput.value = '';
+      iconPathInput.value = '';
+      selectedEmoji = null;
+      selectedFileIcon = null;
+      selectedFilePath = null;
+      iconPreviewSection.style.display = 'none';
+      emojiPickerOpen = false;
+      emojiPicker.style.display = 'none';
+      emojiToggle.textContent = '展开表情选择器 ▼';
+      initEmojiPicker();
+      resizeToFit();
+    }
+
+    function closeAddDialog() {
+      addDialog.classList.remove('show');
+      resizeToFit();
+    }
+
+    // 调整窗口大小以适应内容
+    function resizeToFit() {
+      if (!window.electronAPI) return;
+      // 计算总高度
+      const appHeight = document.querySelector('.app-container').scrollHeight + 20;
+      window.electronAPI.resizeWindow(Math.max(120, appHeight));
+    }
+
+    // 更新图标预览
+    function updateIconPreview() {
+      if (!selectedFilePath) {
+        iconPreviewSection.style.display = 'none';
+        return;
+      }
+
+      iconPreviewSection.style.display = 'block';
+
+      // 如果有自定义emoji，用emoji；否则用提取的图标
+      if (selectedEmoji) {
+        iconPreviewContent.innerHTML = `<span class="icon-preview-emoji">${selectedEmoji}</span>`;
+      } else if (selectedFileIcon) {
+        iconPreviewContent.innerHTML = `<img class="icon-preview-img" src="${selectedFileIcon}" alt="icon">`;
+      } else {
+        iconPreviewContent.innerHTML = `<span class="icon-preview-emoji">📄</span>`;
+      }
+
+      previewName.textContent = iconNameInput.value || '未命名';
+      previewPath.textContent = selectedFilePath;
     }
 
     dockBar.addEventListener('mouseenter', expandDock);
@@ -899,49 +1003,56 @@
       if (settingsPanel.classList.contains('show')) {
         hideSettingsPanel();
       } else {
-        addDialog.classList.remove('show');
         showSettingsPanel();
-        expandDock();
       }
     });
 
     addBtn.addEventListener('click', () => {
-      addDialog.classList.add('show');
-      overlay.classList.add('show');
-      expandDock();
-      initEmojiPicker();
-      iconNameInput.value = '';
-      iconPathInput.value = '';
-      selectedEmoji = '📄';
+      showAddDialog();
     });
 
     cancelAddBtn.addEventListener('click', closeAddDialog);
-    overlay.addEventListener('click', closeAddDialog);
 
-    function closeAddDialog() {
-      addDialog.classList.remove('show');
-      overlay.classList.remove('show');
-    }
+    emojiToggle.addEventListener('click', toggleEmojiPicker);
 
     // 浏览按钮 - 选择 exe 文件
     browseBtn.addEventListener('click', async (e) => {
       e.preventDefault();
       if (window.electronAPI) {
-        const filePath = await window.electronAPI.selectExeFile();
-        if (filePath) {
-          iconPathInput.value = filePath;
-          // 如果名称为空，自动提取文件名
+        const result = await window.electronAPI.selectExeFile();
+        if (result) {
+          selectedFilePath = result.path;
+          selectedFileIcon = result.icon;
+          iconPathInput.value = result.path;
+
+          // 如果名称为空，自动填充
           if (!iconNameInput.value) {
-            const fileName = filePath.split(/[/\\]/).pop().replace(/\.[^/.]+$/, '');
-            iconNameInput.value = fileName;
+            iconNameInput.value = result.name;
           }
+
+          // 如果没有选择自定义emoji，清除emoji选择
+          // 这样会优先使用提取的图标
+          selectedEmoji = null;
+          document.querySelectorAll('.emoji-option').forEach(el => el.classList.remove('selected'));
+
+          updateIconPreview();
+          resizeToFit();
         }
       }
+    });
+
+    iconNameInput.addEventListener('input', () => {
+      updateIconPreview();
     });
 
     confirmAddBtn.addEventListener('click', async () => {
       const name = iconNameInput.value.trim();
       const path = iconPathInput.value.trim();
+
+      if (!path) {
+        alert('请选择应用程序');
+        return;
+      }
 
       if (!name) {
         alert('请输入图标名称');
@@ -949,19 +1060,18 @@
         return;
       }
 
-      if (!path) {
-        alert('请选择或输入应用程序路径');
-        iconPathInput.focus();
-        return;
-      }
+      // 决定用哪个图标
+      let finalIcon = selectedEmoji || selectedFileIcon || '📄';
+      let iconType = selectedEmoji ? 'emoji' : (selectedFileIcon ? 'image' : 'emoji');
 
       const newId = icons.length > 0 ? Math.max(...icons.map(i => i.id)) + 1 : 1;
       icons.push({
         id: newId,
         name,
-        icon: selectedEmoji,
+        icon: finalIcon,
         path,
-        type: 'app'
+        type: 'app',
+        iconType
       });
 
       centerIndex = icons.length - 1;
@@ -970,18 +1080,24 @@
       closeAddDialog();
     });
 
-    // 点击设置面板外部关闭
+    // 点击外部关闭设置面板
     document.addEventListener('click', (e) => {
-      if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) {
-        hideSettingsPanel();
+      if (!settingsPanel.contains(e.target) && e.target !== settingsBtn && !settingsBtn.contains(e.target)) {
+        if (settingsPanel.classList.contains('show')) {
+          hideSettingsPanel();
+        }
       }
     });
 
     // ESC 键关闭弹窗
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        closeAddDialog();
-        hideSettingsPanel();
+        if (addDialog.classList.contains('show')) {
+          closeAddDialog();
+        }
+        if (settingsPanel.classList.contains('show')) {
+          hideSettingsPanel();
+        }
       }
     });
 

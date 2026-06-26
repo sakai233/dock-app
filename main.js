@@ -9,6 +9,7 @@ let isQuitting = false;
 const userDataPath = app.getPath('userData');
 const settingsPath = path.join(userDataPath, 'settings.json');
 const iconsPath = path.join(userDataPath, 'icons.json');
+const iconCacheDir = path.join(userDataPath, 'icon-cache');
 
 const defaultSettings = {
   themeColor: '#ffffff',
@@ -19,12 +20,18 @@ const defaultSettings = {
 };
 
 const defaultIcons = [
-  { id: 1, name: '此电脑', icon: '💻', path: 'explorer.exe', type: 'app' },
+  { id: 1, name: '此电脑', icon: '💻', path: 'explorer.exe', type: 'system' },
   { id: 2, name: '回收站', icon: '🗑️', path: 'shell:RecycleBinFolder', type: 'system' },
   { id: 3, name: '设置', icon: '⚙️', path: 'ms-settings:', type: 'system' },
   { id: 4, name: '浏览器', icon: '🌐', path: 'https://www.google.com', type: 'url' },
   { id: 5, name: '邮件', icon: '📧', path: 'mailto:', type: 'url' }
 ];
+
+function ensureIconCacheDir() {
+  if (!fs.existsSync(iconCacheDir)) {
+    fs.mkdirSync(iconCacheDir, { recursive: true });
+  }
+}
 
 function loadSettings() {
   try {
@@ -71,12 +78,12 @@ function saveIcons(icons) {
 function createWindow() {
   const settings = loadSettings();
   const primaryDisplay = screen.getPrimaryDisplay();
-  const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
+  const { width: screenWidth } = primaryDisplay.workAreaSize;
 
-  // 使用小窗口高度，只占用顶部一小条区域
   mainWindow = new BrowserWindow({
     width: 800,
-    height: 120,
+    height: 500,
+    minHeight: 120,
     x: Math.floor((screenWidth - 800) / 2),
     y: 0,
     frame: false,
@@ -86,7 +93,7 @@ function createWindow() {
     alwaysOnTop: true,
     skipTaskbar: true,
     hasShadow: false,
-    focusable: false,
+    focusable: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -94,10 +101,7 @@ function createWindow() {
     }
   });
 
-  // 设置窗口可点击穿透背景
-  mainWindow.setIgnoreMouseEvents(false);
   mainWindow.setVisibleOnAllWorkspaces(true);
-
   mainWindow.loadFile('index.html');
 
   mainWindow.once('ready-to-show', () => {
@@ -105,19 +109,20 @@ function createWindow() {
       settings: loadSettings(),
       icons: loadIcons()
     });
+    // 初始时缩小窗口，只显示Dock栏
+    setTimeout(() => {
+      const bounds = mainWindow.getBounds();
+      mainWindow.setBounds({ ...bounds, height: 120 });
+    }, 500);
   });
 
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
-
-  // 窗口获得焦点时，允许交互
-  mainWindow.on('focus', () => {
-    mainWindow.setIgnoreMouseEvents(false);
-  });
 }
 
 app.whenReady().then(() => {
+  ensureIconCacheDir();
   createWindow();
 
   app.on('activate', () => {
@@ -162,16 +167,17 @@ ipcMain.handle('show-window', () => {
   }
 });
 
+// 调整窗口大小
 ipcMain.handle('resize-window', (event, height) => {
   if (mainWindow) {
     const bounds = mainWindow.getBounds();
-    mainWindow.setBounds({ ...bounds, height });
+    mainWindow.setBounds({ ...bounds, height: Math.max(120, height) }, true);
   }
 });
 
-// 打开文件选择对话框
+// 打开文件选择对话框并提取图标
 ipcMain.handle('select-exe-file', async () => {
-  const result = await dialog.showOpenDialog({
+  const result = await dialog.showOpenDialog(mainWindow, {
     properties: ['openFile'],
     filters: [
       { name: '应用程序', extensions: ['exe', 'lnk', 'bat', 'cmd'] },
@@ -180,7 +186,29 @@ ipcMain.handle('select-exe-file', async () => {
   });
 
   if (!result.canceled && result.filePaths.length > 0) {
-    return result.filePaths[0];
+    const filePath = result.filePaths[0];
+    let iconDataUrl = null;
+    let appName = '';
+
+    // 提取文件名作为默认名称
+    const fileName = path.basename(filePath);
+    appName = fileName.replace(/\.[^/.]+$/, '');
+
+    // 尝试提取图标
+    try {
+      const icon = await app.getFileIcon(filePath, { size: 'large' });
+      if (icon && !icon.isEmpty()) {
+        iconDataUrl = icon.toDataURL();
+      }
+    } catch (e) {
+      console.error('Error extracting icon:', e);
+    }
+
+    return {
+      path: filePath,
+      name: appName,
+      icon: iconDataUrl
+    };
   }
   return null;
 });

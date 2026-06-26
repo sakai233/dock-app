@@ -1,0 +1,38 @@
+{
+  "name": "dock-app",
+  "version": "1.0.0",
+  "description": "A lightweight floating desktop icon manager for Windows",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64",
+    "pack": "electron-builder --dir"
+  },
+  "keywords": [
+    "dock",
+    "desktop",
+    "floating",
+    "icons"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.dock.app",
+    "productName": "DockApp",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    }
+  }
+}
